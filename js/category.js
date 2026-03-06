@@ -84,7 +84,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (spinner) spinner.style.display = 'none';
             if (!append) {
                 grid.innerHTML = '';
-                Utils.showError(grid.parentElement, 'Failed to load articles. Please check your API key and try again.');
+                Utils.showError(
+                    grid.parentElement,
+                    Utils.getErrorMessage(err, 'Failed to load articles. Please try again.')
+                );
             }
             if (loadMoreBtn) {
                 loadMoreBtn.disabled = false;

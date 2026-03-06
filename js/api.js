@@ -46,7 +46,14 @@ const API = {
                 });
 
                 if (!res.ok) {
-                    const errorBody = await res.text();
+                    const errorBodyText = await res.text();
+                    let errorBodyJson = null;
+
+                    try {
+                        errorBodyJson = JSON.parse(errorBodyText);
+                    } catch {
+                        // Keep raw text when upstream did not send valid JSON.
+                    }
 
                     if (res.status === 429 && attempt < maxAttempts) {
                         const retryAfter = Number(res.headers.get('Retry-After')) || attempt;
@@ -54,7 +61,16 @@ const API = {
                         continue;
                     }
 
-                    throw new Error(`API Error ${res.status}: ${errorBody}`);
+                    const errorMessage =
+                        errorBodyJson?.error ||
+                        errorBodyJson?.message ||
+                        errorBodyJson?.details ||
+                        `Request failed with status ${res.status}`;
+
+                    const error = new Error(errorMessage);
+                    error.status = res.status;
+                    error.details = errorBodyJson || errorBodyText;
+                    throw error;
                 }
 
                 const json = await res.json();

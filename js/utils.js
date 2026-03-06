@@ -151,6 +151,51 @@ const Utils = {
             <span>${Utils.escapeHtml(message)}</span>
         `;
         parentEl.prepend(banner);
+    },
+
+    /**
+     * Convert technical API errors into user-facing messages.
+     */
+    getErrorMessage(err, fallback = 'Something went wrong. Please try again.') {
+        if (!err) return fallback;
+
+        const status = Number(err.status || 0);
+        const rawMessage = String(err.message || '').trim();
+        const normalized = rawMessage.toLowerCase();
+
+        if (status === 429 || normalized.includes('rate limit')) {
+            return 'Rate limit reached. Please wait a moment and try again.';
+        }
+
+        if (
+            status === 401 ||
+            status === 403 ||
+            normalized.includes('api key') ||
+            normalized.includes('unauthorized') ||
+            normalized.includes('forbidden') ||
+            normalized.includes('authentication')
+        ) {
+            return 'Authentication failed on the server API. Check NEWSDATAHUB_API_KEY.';
+        }
+
+        if (status === 404 || normalized.includes('cannot get /api/news')) {
+            return 'API endpoint /api/news was not found. Run the app with `vercel dev`.';
+        }
+
+        if (
+            status >= 500 ||
+            normalized.includes('server api key is not configured') ||
+            normalized.includes('failed to reach upstream')
+        ) {
+            return 'News service is temporarily unavailable. Please try again shortly.';
+        }
+
+        const safeMessage = rawMessage.replace(/^api error \d+:\s*/i, '').trim();
+        if (safeMessage && safeMessage.length <= 200 && !/<[a-z][\s\S]*>/i.test(safeMessage)) {
+            return safeMessage;
+        }
+
+        return fallback;
     }
 };
 

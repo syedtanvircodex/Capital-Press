@@ -92,7 +92,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Search error:', err);
             if (spinner) spinner.style.display = 'none';
             if (!append) {
-                Utils.showError(grid.parentElement, 'Search failed. Please check your API key and try again.');
+                Utils.showError(
+                    grid.parentElement,
+                    Utils.getErrorMessage(err, 'Search failed. Please try again.')
+                );
             }
             if (loadMoreBtn) {
                 loadMoreBtn.disabled = false;

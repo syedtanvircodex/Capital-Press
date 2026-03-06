@@ -51,7 +51,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Latest news error:', err);
         if (latestSpinner) latestSpinner.style.display = 'none';
         latestGrid.innerHTML = '';
-        Utils.showError(latestGrid.parentElement, 'Failed to load latest news. Please check your API key and try again.');
+        Utils.showError(
+            latestGrid.parentElement,
+            Utils.getErrorMessage(err, 'Failed to load latest news. Please try again.')
+        );
     }
 
     // --- Load Category Previews ---
