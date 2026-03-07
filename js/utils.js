@@ -154,7 +154,7 @@ const Utils = {
     },
 
     /**
-     * Convert technical API errors into user-facing messages.
+     * Convert technical errors into clear, user-facing messages.
      */
     getErrorMessage(err, fallback = 'Something went wrong. Please try again.') {
         if (!err) return fallback;
@@ -164,7 +164,7 @@ const Utils = {
         const normalized = rawMessage.toLowerCase();
 
         if (status === 429 || normalized.includes('rate limit')) {
-            return 'Rate limit reached. Please wait a moment and try again.';
+            return 'Too many requests right now. Please wait a moment and try again.';
         }
 
         if (
@@ -175,11 +175,19 @@ const Utils = {
             normalized.includes('forbidden') ||
             normalized.includes('authentication')
         ) {
-            return 'Authentication failed on the server API. Check NEWSDATAHUB_API_KEY.';
+            return 'We could not complete your request right now. Please try again shortly.';
         }
 
         if (status === 404 || normalized.includes('cannot get /api/news')) {
-            return 'API endpoint /api/news was not found. Run the app with `vercel dev`.';
+            return 'The service is temporarily unavailable. Please refresh and try again.';
+        }
+
+        if (
+            normalized.includes('failed to fetch') ||
+            normalized.includes('networkerror') ||
+            normalized.includes('load failed')
+        ) {
+            return 'Connection issue detected. Please check your internet and try again.';
         }
 
         if (
@@ -191,7 +199,13 @@ const Utils = {
         }
 
         const safeMessage = rawMessage.replace(/^api error \d+:\s*/i, '').trim();
-        if (safeMessage && safeMessage.length <= 200 && !/<[a-z][\s\S]*>/i.test(safeMessage)) {
+        const hasTechnicalTerms = /(api|endpoint|token|key|server|upstream|vercel|auth|401|403|404|500|unauthorized|forbidden|cors)/i.test(safeMessage);
+        if (
+            safeMessage &&
+            safeMessage.length <= 200 &&
+            !/<[a-z][\s\S]*>/i.test(safeMessage) &&
+            !hasTechnicalTerms
+        ) {
             return safeMessage;
         }
 
