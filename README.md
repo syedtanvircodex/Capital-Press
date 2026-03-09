@@ -1,5 +1,7 @@
 # Capital Press
 
+![Capital Press](https://i.ibb.co/yc27pt3m/captital-press.png)
+
 Capital Press is a modern news web app built with vanilla HTML, CSS, and JavaScript. It brings together live headlines from NewsDataHub and presents them in a clean newspaper style experience with category browsing, search, bookmarks, and article detail pages.
 
 Live website: https://capital-press.vercel.app
